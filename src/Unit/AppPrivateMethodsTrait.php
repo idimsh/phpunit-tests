@@ -61,6 +61,6 @@ trait AppPrivateMethodsTrait
         }
         $reflectionMethod = new \ReflectionMethod($parent, $method);
         $reflectionMethod->setAccessible(true);
-        return $reflectionMethod->invoke($parent, ...$args);
+        return $reflectionMethod->invoke(null, ...$args);
     }
 }
