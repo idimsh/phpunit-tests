@@ -104,9 +104,8 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
     {
         $reflectionMethod = new \ReflectionMethod($object, $methodName);
         $reflectionMethod->setAccessible(true);
-        return $reflectionMethod->invoke($object, ...$params);
+        return $reflectionMethod->invokeArgs($object, $params);
     }
-
 
     protected function setPropertyValue($classNameOrObject, string $propertyName, $value): void
     {
