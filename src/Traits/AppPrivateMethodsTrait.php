@@ -1,12 +1,7 @@
 <?php
 declare(strict_types=1);
-/*
-* This file is part of idimsh\PhpUnitTests\Unit;
-*
-* Author: Abdulrahman Dimashki <idimsh@gmail.com>
-*/
 
-namespace idimsh\PhpUnitTests\Unit;
+namespace idimsh\PhpUnitTests\Traits;
 
 trait AppPrivateMethodsTrait
 {

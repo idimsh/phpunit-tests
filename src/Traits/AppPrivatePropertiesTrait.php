@@ -1,12 +1,7 @@
 <?php
 declare(strict_types=1);
-/*
-* This file is part of idimsh\PhpUnitTests\Unit;
-*
-* Author: Abdulrahman Dimashki <idimsh@gmail.com>
-*/
 
-namespace idimsh\PhpUnitTests\Unit;
+namespace idimsh\PhpUnitTests\Traits;
 /**
  * Work on progress, not sure if they work or not.
  * The idea is to create stubs from the real classes and inject this trait in order to set/get private properties.
