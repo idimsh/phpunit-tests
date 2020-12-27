@@ -27,20 +27,21 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
             ->disallowMockingUnknownTypes();
 
         $reflectionClass = new \ReflectionClass($originalClassName);
-        $publicMethods   = $protectedMethods = [];
-        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PROTECTED) as $method) {
-            $protectedMethods[] = $method->getName();
+        $methods         = [];
+        foreach (
+            $reflectionClass->getMethods(
+                \ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED | \ReflectionMethod::IS_PRIVATE
+            ) as $method
+        ) {
+            $methods[] = $method->getName();
         }
-        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            $publicMethods[] = $method->getName();
-        }
-        if (method_exists($return, 'addMethods')) {
+        if (method_exists($return, 'onlyMethods')) {
             // new in v8
-            $return->addMethods($protectedMethods);
+            $return->onlyMethods($methods);
         }
         else {
             // will be deprecated in v9 and removed in v10
-            $return->setMethods(array_merge($protectedMethods, $publicMethods));
+            $return->setMethods($methods);
         }
         return $return;
     }
