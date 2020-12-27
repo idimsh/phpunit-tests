@@ -5,6 +5,7 @@ namespace idimsh\PhpUnitTests\Unit;
 
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\RuntimeException;
 
 abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
 {
@@ -26,8 +27,17 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
             ->disableArgumentCloning()
             ->disallowMockingUnknownTypes();
 
-        $reflectionClass = new \ReflectionClass($originalClassName);
-        $methods         = [];
+        try {
+            $reflectionClass = new \ReflectionClass($originalClassName);
+        }
+        catch (\ReflectionException $e) {
+            throw new RuntimeException(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+        $methods = [];
         foreach (
             $reflectionClass->getMethods(
                 \ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED | \ReflectionMethod::IS_PRIVATE
@@ -56,7 +66,16 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
      */
     protected function invokeMethod($object, string $methodName)
     {
-        $reflectionMethod = new \ReflectionMethod($object, $methodName);
+        try {
+            $reflectionMethod = new \ReflectionMethod($object, $methodName);
+        }
+        catch (\ReflectionException $e) {
+            throw new RuntimeException(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
         $reflectionMethod->setAccessible(true);
         $args = func_get_args();
         array_shift($args);
@@ -102,6 +121,4 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->getValue($classNameOrObject);
     }
-
-
 }
