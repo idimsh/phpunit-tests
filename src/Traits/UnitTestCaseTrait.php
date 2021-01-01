@@ -1,29 +1,45 @@
 <?php
 declare(strict_types=1);
 
-namespace idimsh\PhpUnitTests\Unit;
+namespace idimsh\PhpUnitTests\Traits;
 
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\RuntimeException;
 
-/**
- * @deprecated
- */
-abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
+trait UnitTestCaseTrait
 {
+    use PropertiesAndMethodsReflectionTrait;
+
+    /**
+     * @param string $originalClassName
+     * @return MockObject
+     * @throws RuntimeException
+     */
     protected function createMockWithProtectedMethods(string $originalClassName): MockObject
     {
         return $this->getMockBuilderWithProtectedMethods($originalClassName)->getMock();
     }
 
+    /**
+     * @param string $originalClassName
+     * @return MockObject
+     * @throws RuntimeException
+     * @throws \PHPUnit\Framework\Exception
+     */
     protected function createMockWithProtectedMethodsForAbstractClass(string $originalClassName): MockObject
     {
         return $this->getMockBuilderWithProtectedMethods($originalClassName)->getMockForAbstractClass();
     }
 
+    /**
+     * @param string $originalClassName
+     * @return MockBuilder
+     * @throws RuntimeException
+     */
     protected function getMockBuilderWithProtectedMethods(string $originalClassName): MockBuilder
     {
+        /** @var \PHPUnit\Framework\TestCase $this */
         $return = $this->getMockBuilder($originalClassName)
             ->disableOriginalConstructor()
             ->disableOriginalClone()
@@ -66,18 +82,13 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
      * @param        $object
      * @param string $methodName
      * @return mixed
+     * @throws RuntimeException
      */
     protected function invokeMethod($object, string $methodName)
     {
-        try {
-            $reflectionMethod = new \ReflectionMethod($object, $methodName);
-        }
-        catch (\ReflectionException $e) {
-            throw new RuntimeException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
+        $reflectionMethod = self::reflectionMethod($object, $methodName);
+        if (!$reflectionMethod) {
+            throw self::reflectionMethodException($object, $methodName);
         }
         $reflectionMethod->setAccessible(true);
         $args = func_get_args();
@@ -102,24 +113,45 @@ abstract class AbstractBaseUnitTestCase extends \PHPUnit\Framework\TestCase
      *                       1 => $param1ByValue,
      *                       ]
      * @return mixed
+     * @throws RuntimeException
      */
     protected function invokeMethodParamsByReference($object, string $methodName, array &$params)
     {
-        $reflectionMethod = new \ReflectionMethod($object, $methodName);
+        $reflectionMethod = self::reflectionMethod($object, $methodName);
+        if (!$reflectionMethod) {
+            throw self::reflectionMethodException($object, $methodName);
+        }
         $reflectionMethod->setAccessible(true);
         return $reflectionMethod->invokeArgs($object, $params);
     }
 
+    /**
+     * @param        $classNameOrObject
+     * @param string $propertyName
+     * @param        $value
+     * @throws RuntimeException
+     */
     protected function setPropertyValue($classNameOrObject, string $propertyName, $value): void
     {
-        $reflectionProperty = new \ReflectionProperty($classNameOrObject, $propertyName);
+        $reflectionProperty = self::reflectionProperty($classNameOrObject, $propertyName);
+        if (!$reflectionProperty) {
+            throw self::reflectionPropertyException($classNameOrObject, $propertyName);
+        }
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($classNameOrObject, $value);
     }
 
+    /**
+     * @param        $classNameOrObject
+     * @param string $propertyName
+     * @throws RuntimeException
+     */
     protected function getPropertyValue($classNameOrObject, string $propertyName)
     {
-        $reflectionProperty = new \ReflectionProperty($classNameOrObject, $propertyName);
+        $reflectionProperty = self::reflectionProperty($classNameOrObject, $propertyName);
+        if (!$reflectionProperty) {
+            throw self::reflectionPropertyException($classNameOrObject, $propertyName);
+        }
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->getValue($classNameOrObject);
     }

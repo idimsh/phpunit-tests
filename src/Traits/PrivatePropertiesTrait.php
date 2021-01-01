@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 namespace idimsh\PhpUnitTests\Traits;
-use PHPUnit\Framework\MockObject\RuntimeException;
 
 /**
  * Work on progress, not sure if they work or not.
@@ -10,17 +9,18 @@ use PHPUnit\Framework\MockObject\RuntimeException;
  */
 trait PrivatePropertiesTrait
 {
+    use PropertiesAndMethodsReflectionTrait;
+
+    /**
+     * @param string $propertyName
+     * @param  mixed $value
+     * @throws \PHPUnit\Framework\MockObject\RuntimeException
+     */
     public function __set(string $propertyName, $value)
     {
-        try {
-            $reflectionProperty = new \ReflectionProperty(get_parent_class($this), $propertyName);
-        }
-        catch (\ReflectionException $e) {
-            throw new RuntimeException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
+        $reflectionProperty = self::reflectionProperty($this, $propertyName);
+        if (!$reflectionProperty) {
+            throw self::reflectionPropertyException($this, $propertyName);
         }
         $reflectionProperty->setAccessible(true);
         if ($reflectionProperty->isStatic()) {
@@ -31,18 +31,16 @@ trait PrivatePropertiesTrait
         }
     }
 
-
+    /**
+     * @param string $propertyName
+     * @return mixed
+     * @throws \PHPUnit\Framework\MockObject\RuntimeException
+     */
     public function __get(string $propertyName)
     {
-        try {
-            $reflectionProperty = new \ReflectionProperty(get_parent_class($this), $propertyName);
-        }
-        catch (\ReflectionException $e) {
-            throw new RuntimeException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
+        $reflectionProperty = self::reflectionProperty($this, $propertyName);
+        if (!$reflectionProperty) {
+            throw self::reflectionPropertyException($this, $propertyName);
         }
         $reflectionProperty->setAccessible(true);
         if ($reflectionProperty->isStatic()) {

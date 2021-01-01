@@ -1,13 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace idimsh\PhpUnitTests\Unit;
+namespace idimsh\PhpUnitTests\Traits;
 
-/**
- * @deprecated
- */
-class PHPUnitTestCase extends AbstractBaseUnitTestCase
+trait SelfDependencyTestCaseTrait
 {
+    use UnitTestCaseTrait;
+
+    /**
+     * @param        $object
+     * @param string $propertyName
+     * @param null   $propertyValue
+     * @throws \PHPUnit\Framework\MockObject\RuntimeException
+     */
     protected function setSelfDependency(
         $object,
         $propertyName = 'selfDependency',
@@ -17,6 +22,11 @@ class PHPUnitTestCase extends AbstractBaseUnitTestCase
         $this->setPropertyValue($object, $propertyName, $propertyValue ?? $this->selfDependency);
     }
 
+    /**
+     * @param        $object
+     * @param string $propertyName
+     * @throws \PHPUnit\Framework\MockObject\RuntimeException
+     */
     protected function unsetSelfDependency(
         $object,
         $propertyName = 'selfDependency'
